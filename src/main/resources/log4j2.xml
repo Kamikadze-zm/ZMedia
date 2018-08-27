@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Properties>
+        <Property name="log-path">${sys:catalina.base}/logs</Property>
+    </Properties>
+    
+    <Appenders>
+        <RollingFile name="RollingFile" fileName="${log-path}/zmedia.log"
+                     filePattern="${log-path}/zmedia-%d{yyyy-MM-dd}.log" >
+            <PatternLayout>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss} [%-5p] %c{4} - %m %rEx %n</pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+        
+        <RollingFile name="Sql" fileName="${log-path}/zmedia-sql.log"
+                     filePattern="${log-path}/zmedia-sql-%d{yyyy-MM-dd}.log" >
+            <PatternLayout>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss} %m%n%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <Logger name= "ru.kamikadze_zm.datatransfer" level="INFO" additivity="false">
+           <AppenderRef ref="RollingFile"/>
+        </Logger>
+        
+        <Logger name= "org.hibernate.SQL" level="DEBUG" additivity="false">
+           <AppenderRef ref="Sql"/>
+        </Logger>
+        
+        <Root level="WARN">
+            <AppenderRef ref="RollingFile"/>
+        </Root>
+    </Loggers>
+</Configuration>
