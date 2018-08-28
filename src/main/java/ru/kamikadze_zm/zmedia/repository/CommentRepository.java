@@ -7,7 +7,7 @@ import ru.kamikadze_zm.zmedia.model.entity.Comment;
 @NoRepositoryBean
 public interface CommentRepository<E extends Comment> extends Repository<E, Integer> {
 
-    public List<E> findByPublicationId(Integer id);
+    public List<E> findByPublicationIdOrderByCommentDate(Integer id);
 
     public long countByPublicationId(Integer id);
 }
