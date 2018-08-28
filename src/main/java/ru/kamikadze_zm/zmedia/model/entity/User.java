@@ -11,6 +11,7 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -48,6 +49,10 @@ public class User implements Serializable, UserDetails {
     @Type(type = PostgreSqlEnumType.POSTGRESQL_ENUM_TYPE)
     @Enumerated(EnumType.STRING)
     private Role role;
+    @OneToMany(mappedBy = "author")
+    private Collection<Film> films;
+    @OneToMany(mappedBy = "author")
+    private Collection<FilmComment> filmComments;
 
     public User() {
     }
@@ -122,6 +127,22 @@ public class User implements Serializable, UserDetails {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public Collection<FilmComment> getFilmComments() {
+        return filmComments;
+    }
+
+    public void setFilmComments(Collection<FilmComment> filmComments) {
+        this.filmComments = filmComments;
+    }
+
+    public Collection<Film> getFilms() {
+        return films;
+    }
+
+    public void setFilms(Collection<Film> films) {
+        this.films = films;
     }
 
     public boolean isAdmin() {
