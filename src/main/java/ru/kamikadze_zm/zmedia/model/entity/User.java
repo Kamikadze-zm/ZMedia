@@ -53,6 +53,10 @@ public class User implements Serializable, UserDetails {
     private Collection<Film> films;
     @OneToMany(mappedBy = "author")
     private Collection<FilmComment> filmComments;
+    @OneToMany(mappedBy = "author")
+    private Collection<TvSeries> tvSeries;
+    @OneToMany(mappedBy = "author")
+    private Collection<TvSeriesComment> tvSeriesComments;
 
     public User() {
     }
@@ -143,6 +147,22 @@ public class User implements Serializable, UserDetails {
 
     public void setFilms(Collection<Film> films) {
         this.films = films;
+    }
+
+    public Collection<TvSeries> getTvSeries() {
+        return tvSeries;
+    }
+
+    public void setTvSeries(Collection<TvSeries> tvSeries) {
+        this.tvSeries = tvSeries;
+    }
+
+    public Collection<TvSeriesComment> getTvSeriesComments() {
+        return tvSeriesComments;
+    }
+
+    public void setTvSeriesComments(Collection<TvSeriesComment> tvSeriesComments) {
+        this.tvSeriesComments = tvSeriesComments;
     }
 
     public boolean isAdmin() {
