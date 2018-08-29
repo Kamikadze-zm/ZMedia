@@ -78,7 +78,7 @@ public class ImageManager {
                 }
             }
         }
-        String webPath = "/" + path + "/" + fileName;
+        String webPath = path + "/" + fileName;
         return webPath;
     }
 
