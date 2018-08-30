@@ -9,6 +9,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import org.springframework.stereotype.Repository;
 import ru.kamikadze_zm.zmedia.model.entity.Film;
+import ru.kamikadze_zm.zmedia.model.entity.Game;
 import ru.kamikadze_zm.zmedia.model.entity.Publication;
 import ru.kamikadze_zm.zmedia.model.entity.TvSeries;
 import ru.kamikadze_zm.zmedia.repository.NoveltiesRepository;
@@ -24,6 +25,7 @@ public class NoveltiesRepositoryImpl implements NoveltiesRepository {
         List<Publication> publications = new ArrayList<>();
         publications.addAll(getPublications(Film.class, limit));
         publications.addAll(getPublications(TvSeries.class, limit));
+        publications.addAll(getPublications(Game.class, limit));
         publications.sort((Publication p1, Publication p2) -> p2.getPublishDate().compareTo(p1.getPublishDate()));
         if (publications.size() > limit) {
             return publications.subList(0, limit);
