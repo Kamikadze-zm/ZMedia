@@ -144,6 +144,10 @@ public abstract class Publication<G extends Enum<G> & Genre, C extends Comment, 
         this.downloadLinks = downloadLinks;
     }
 
+    public int compareByDescPublishDateTo(Publication p) {
+        return p.getPublishDate().compareTo(this.getPublishDate());
+    }
+
     public Integer getId() {
         return id;
     }

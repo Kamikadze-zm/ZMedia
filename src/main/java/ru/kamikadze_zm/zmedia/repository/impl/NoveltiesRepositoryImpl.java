@@ -26,7 +26,7 @@ public class NoveltiesRepositoryImpl implements NoveltiesRepository {
         publications.addAll(getPublications(Film.class, limit));
         publications.addAll(getPublications(TvSeries.class, limit));
         publications.addAll(getPublications(Game.class, limit));
-        publications.sort((Publication p1, Publication p2) -> p2.getPublishDate().compareTo(p1.getPublishDate()));
+        publications.sort(Publication::compareByDescPublishDateTo);
         if (publications.size() > limit) {
             return publications.subList(0, limit);
         } else {
