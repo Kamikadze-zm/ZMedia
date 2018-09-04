@@ -28,7 +28,7 @@
         </RollingFile>
     </Appenders>
     <Loggers>
-        <Logger name= "ru.kamikadze_zm.datatransfer" level="INFO" additivity="false">
+        <Logger name= "ru.kamikadze_zm" level="INFO" additivity="false">
            <AppenderRef ref="RollingFile"/>
         </Logger>
         

@@ -13,16 +13,20 @@ public class SearchResult {
 
     @SuppressWarnings("unchecked")
     public SearchResult(Publication publication) {
-        if (publication instanceof Film) {
-            this.publication = new FilmShortViewDTO((Film) publication);
-        } else if (publication instanceof TvSeries) {
-            this.publication = new TvSeriesShortViewDTO((TvSeries) publication);
-        } else if (publication instanceof Game) {
-            this.publication = new GameShortViewDTO((Game) publication);
-        } else {
-            this.publication = new PublicationShortViewDTO(publication);
-        }
         this.type = PublicationType.identifyType(publication);
+        switch (this.type) {
+            case FILM:
+                this.publication = new FilmShortViewDTO((Film) publication);
+                break;
+            case TV_SERIES:
+                this.publication = new TvSeriesShortViewDTO((TvSeries) publication);
+                break;
+            case GAME:
+                this.publication = new GameShortViewDTO((Game) publication);
+                break;
+            default:
+                this.publication = new PublicationShortViewDTO(publication);
+        }
     }
 
     public PublicationShortViewDTO getPublication() {

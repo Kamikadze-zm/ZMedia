@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
@@ -19,6 +20,7 @@ import ru.kamikadze_zm.zmedia.model.dto.PublicationsPageDTO;
 import ru.kamikadze_zm.zmedia.model.entity.DownloadLink;
 import ru.kamikadze_zm.zmedia.model.entity.Publication;
 import ru.kamikadze_zm.zmedia.repository.PublicationRepository;
+import ru.kamikadze_zm.zmedia.service.NotificationService;
 import ru.kamikadze_zm.zmedia.service.PublicationService;
 import ru.kamikadze_zm.zmedia.util.AuthenticationUtil;
 import ru.kamikadze_zm.zmedia.util.Constants;
@@ -30,6 +32,9 @@ public abstract class PublicationServiceImpl<E extends Publication, D extends Pu
     private final int DEFAULT_PAGE_SIZE = 15;
 
     private final PublicationRepository<E> publicationRepository;
+
+    @Autowired
+    private NotificationService notificationService;
 
     public PublicationServiceImpl(PublicationRepository<E> publicationRepository) {
         this.publicationRepository = publicationRepository;
@@ -55,7 +60,9 @@ public abstract class PublicationServiceImpl<E extends Publication, D extends Pu
     @Override
     @Transactional
     public Integer add(D dto) {
-        return publicationRepository.save(mapDtoToEntity(dto)).getId();
+        E e = publicationRepository.save(mapDtoToEntity(dto));
+        notificationService.sendNotification(e);
+        return e.getId();
     }
 
     @Override
@@ -65,8 +72,12 @@ public abstract class PublicationServiceImpl<E extends Publication, D extends Pu
         if (!AuthenticationUtil.compareUserEmail(e.getAuthor().getEmail()) && !AuthenticationUtil.isAdmin()) {
             throw new AccessDeniedException(Constants.ACCESS_DENIED_MESSAGE);
         }
+        Date publishDate = e.getPublishDate();
         mapDtoToEntity(dto, e);
         publicationRepository.save(e);
+        if (!publishDate.equals(e.getPublishDate())) {
+            notificationService.sendNotificationForUpdated(e);
+        }
     }
 
     @Override
