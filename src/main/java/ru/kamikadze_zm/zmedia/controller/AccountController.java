@@ -3,8 +3,6 @@ package ru.kamikadze_zm.zmedia.controller;
 import java.util.ArrayList;
 import java.util.List;
 import javax.validation.Valid;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,8 +17,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.kamikadze_zm.zmedia.exception.ValidationFieldsException;
+import ru.kamikadze_zm.zmedia.model.ApiError;
+import ru.kamikadze_zm.zmedia.model.ApiError.ErrorCode;
+import ru.kamikadze_zm.zmedia.model.dto.NewPasswordDTO;
 import ru.kamikadze_zm.zmedia.model.dto.RegistrationDTO;
 import ru.kamikadze_zm.zmedia.service.AccountService;
+import ru.kamikadze_zm.zmedia.util.AuthenticationUtil;
 
 @RestController
 @RequestMapping("/api/account/")
@@ -71,5 +73,36 @@ public class AccountController {
             default:
                 return false;
         }
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping(path = "confirmation-message")
+    public ResponseEntity sendConfirmationMessage() {
+        accountService.sendEmailConfirmationMessage(AuthenticationUtil.getAuthenticatedUser());
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @PreAuthorize("permitAll")
+    @GetMapping(path = "email-confirm/{code}")
+    public ResponseEntity confirmEmail(@PathVariable("code") String code) {
+        accountService.confirmEmail(code);
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @PreAuthorize("permitAll")
+    @GetMapping(path = "password-restoring-message/{email}/")
+    public ResponseEntity<Object> sendPasswordRestoringMessage(@PathVariable("email") String email) {
+        if (accountService.sendPasswordRestoringMessage(email)) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(new ApiError(ErrorCode.MESSAGE, "Пользователь не найден или email не подтвержден"), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PreAuthorize("permitAll")
+    @PostMapping(path = "password-restoring/{code}")
+    public ResponseEntity restorePassword(@PathVariable("code") String code, @Valid @RequestBody NewPasswordDTO password) {
+        accountService.restorePassword(code, password);
+        return new ResponseEntity(HttpStatus.OK);
     }
 }

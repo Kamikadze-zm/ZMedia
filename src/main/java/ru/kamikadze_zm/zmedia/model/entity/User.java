@@ -49,6 +49,8 @@ public class User implements Serializable, UserDetails {
     @Type(type = PostgreSqlEnumType.POSTGRESQL_ENUM_TYPE)
     @Enumerated(EnumType.STRING)
     private Role role;
+    @Column(name = "confirmed")
+    private Boolean confirmed;
     @OneToMany(mappedBy = "author")
     private Collection<Film> films;
     @OneToMany(mappedBy = "author")
@@ -62,11 +64,11 @@ public class User implements Serializable, UserDetails {
     }
 
     public User(String email) {
-        this.email = email;
+        this.email = email.toLowerCase();
     }
 
     public User(String email, String name) {
-        this.email = email;
+        this(email);
         this.name = name;
         this.enabled = true;
     }
@@ -77,10 +79,11 @@ public class User implements Serializable, UserDetails {
         this.avatar = avatar;
     }
 
-    public User(String email, String name, String avatar, Role role) {
+    public User(String email, String name, String avatar, Role role, Boolean confirmed) {
         this(email, name);
         this.avatar = avatar;
         this.role = role;
+        this.confirmed = confirmed;
     }
 
     public String getEmail() {
@@ -88,7 +91,7 @@ public class User implements Serializable, UserDetails {
     }
 
     public void setEmail(String email) {
-        this.email = email;
+        this.email = email.toLowerCase();
     }
 
     public String getName() {
@@ -131,6 +134,18 @@ public class User implements Serializable, UserDetails {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public Boolean getConfirmed() {
+        return confirmed;
+    }
+
+    public void setConfirmed(Boolean confirmed) {
+        this.confirmed = confirmed;
+    }
+
+    public boolean isConfirmed() {
+        return this.confirmed != null && this.confirmed == true;
     }
 
     public Collection<FilmComment> getFilmComments() {
@@ -234,7 +249,8 @@ public class User implements Serializable, UserDetails {
                 + ", name=" + name
                 + ", avatar=" + avatar
                 + ", enabled=" + enabled
-                + ", role=" + role + '}';
+                + ", role=" + role
+                + ", confirmed=" + confirmed + '}';
     }
 
     public static enum Role {

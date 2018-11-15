@@ -15,7 +15,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
     "ru.kamikadze_zm.zmedia.repository",
     "ru.kamikadze_zm.zmedia.service",
     "ru.kamikadze_zm.zmedia.util"})
-@Import(value = {Data.class, Security.class, Firebase.class})
+@Import(value = {Data.class, Security.class, Firebase.class, Mail.class})
 @EnableAsync
 public class Spring {
 

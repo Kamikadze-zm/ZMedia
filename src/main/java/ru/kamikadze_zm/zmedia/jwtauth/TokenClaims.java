@@ -3,7 +3,8 @@ package ru.kamikadze_zm.zmedia.jwtauth;
 public enum TokenClaims {
     NAME("name"),
     ROLE("role"),
-    AVATAR("avatar");
+    AVATAR("avatar"),
+    CONFIRMED("confirmed");
 
     private final String key;
 

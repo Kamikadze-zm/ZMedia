@@ -10,7 +10,6 @@ import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import ru.kamikadze_zm.zmedia.model.entity.User;
-import ru.kamikadze_zm.zmedia.model.entity.User.Role;
 
 public class JwtAuthenticationProvider implements AuthenticationProvider {
 
@@ -33,15 +32,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
             throw new CredentialsExpiredException(e.getMessage());
         }
         Claims claims = jwsClaims.getBody();
-        String email = claims.getSubject();
-        String name = claims.get(TokenClaims.NAME.getKey(), String.class);
-        Object roleClaim = claims.get(TokenClaims.ROLE.getKey());
-        Role role = null;
-        if (roleClaim != null) {
-            role = Role.valueOf(roleClaim.toString().toUpperCase());
-        }
-        String avatar = claims.get(TokenClaims.AVATAR.getKey(), String.class);
-        User user = new User(email, name, avatar, role);
+        User user = tokenService.mapClaimsToUser(claims);
         if (LOG.isDebugEnabled()) {
             LOG.debug("Authenticated user: {}", user);
         }

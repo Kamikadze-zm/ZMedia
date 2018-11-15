@@ -22,7 +22,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public User getByEmail(String email) {
-        Optional<User> ou = userRepository.findById(email);
+        Optional<User> ou = userRepository.findById(email.toLowerCase());
         if (!ou.isPresent()) {
             return null;
         }
@@ -60,7 +60,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public boolean emailExist(String email) {
-        return userRepository.existsById(email);
+        return userRepository.existsById(email.toLowerCase());
     }
 
     @Override

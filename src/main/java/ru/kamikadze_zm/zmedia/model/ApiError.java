@@ -16,6 +16,10 @@ public class ApiError {
         this(errorCode.getCode(), message, details);
     }
 
+    public ApiError(ErrorCode errorCode, String message) {
+        this(errorCode.getCode(), message, message);
+    }
+
     public ApiError(int errorCode, Throwable throwable) {
         this(errorCode, throwable.getLocalizedMessage(), throwable.getMessage());
     }
@@ -37,7 +41,9 @@ public class ApiError {
     }
 
     public static enum ErrorCode {
+        MESSAGE(0),
         VALIDATION(1),
+        INVALID_VERIFICATION_CODE(2),
         OTHER(-1);
 
         private final int code;

@@ -13,6 +13,7 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import ru.kamikadze_zm.zmedia.model.entity.User;
+import ru.kamikadze_zm.zmedia.model.entity.User.Role;
 
 public class TokenService {
 
@@ -34,11 +35,7 @@ public class TokenService {
 
     public String getAccessToken(User user) {
         Claims claims = Jwts.claims().setSubject(user.getEmail());
-        claims.put(TokenClaims.NAME.getKey(), user.getName());
-        if (user.getRole() != null) {
-            claims.put(TokenClaims.ROLE.getKey(), user.getRole().toString());
-        }
-        claims.put(TokenClaims.AVATAR.getKey(), user.getAvatar());
+        this.setClaims(user, claims);
         Date date = new Date();
         String token = Jwts.builder()
                 .setClaims(claims)
@@ -61,6 +58,28 @@ public class TokenService {
                 .signWith(SIGNATURE_ALGORITHM, tokenProperties.getSecretKey())
                 .compact();
         return token;
+    }
+
+    public void setClaims(User user, Claims claims) {
+        claims.put(TokenClaims.NAME.getKey(), user.getName());
+        if (user.getRole() != null) {
+            claims.put(TokenClaims.ROLE.getKey(), user.getRole().toString());
+        }
+        claims.put(TokenClaims.AVATAR.getKey(), user.getAvatar());
+        claims.put(TokenClaims.CONFIRMED.getKey(), user.getConfirmed());
+    }
+
+    public User mapClaimsToUser(Claims claims) {
+        String email = claims.getSubject();
+        String name = claims.get(TokenClaims.NAME.getKey(), String.class);
+        Object roleClaim = claims.get(TokenClaims.ROLE.getKey());
+        Role role = null;
+        if (roleClaim != null) {
+            role = Role.valueOf(roleClaim.toString().toUpperCase());
+        }
+        String avatar = claims.get(TokenClaims.AVATAR.getKey(), String.class);
+        Boolean confirmed = claims.get(TokenClaims.CONFIRMED.getKey(), Boolean.class);
+        return new User(email, name, avatar, role, confirmed);
     }
 
     public String extractToken(String authorizationHeader) {
