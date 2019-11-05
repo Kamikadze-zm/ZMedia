@@ -20,6 +20,7 @@ import ru.kamikadze_zm.zmedia.model.dto.PublicationsPageDTO;
 import ru.kamikadze_zm.zmedia.model.entity.DownloadLink;
 import ru.kamikadze_zm.zmedia.model.entity.Publication;
 import ru.kamikadze_zm.zmedia.repository.PublicationRepository;
+import ru.kamikadze_zm.zmedia.service.DCService;
 import ru.kamikadze_zm.zmedia.service.NotificationService;
 import ru.kamikadze_zm.zmedia.service.PublicationService;
 import ru.kamikadze_zm.zmedia.util.AuthenticationUtil;
@@ -35,6 +36,8 @@ public abstract class PublicationServiceImpl<E extends Publication, D extends Pu
 
     @Autowired
     private NotificationService notificationService;
+    @Autowired
+    private DCService dCService;
 
     public PublicationServiceImpl(PublicationRepository<E> publicationRepository) {
         this.publicationRepository = publicationRepository;
@@ -59,9 +62,11 @@ public abstract class PublicationServiceImpl<E extends Publication, D extends Pu
 
     @Override
     @Transactional
+    @SuppressWarnings("unchecked")
     public Integer add(D dto) {
         E e = publicationRepository.save(mapDtoToEntity(dto));
         notificationService.sendNotification(e);
+        dCService.updateMagnets(e);
         return e.getId();
     }
 
