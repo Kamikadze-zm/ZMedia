@@ -10,9 +10,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,7 @@ import ru.kamikadze_zm.zmedia.model.entity.DownloadLink;
 import ru.kamikadze_zm.zmedia.model.entity.Publication;
 import ru.kamikadze_zm.zmedia.model.entity.util.PublicationType;
 import ru.kamikadze_zm.zmedia.service.DCService;
+import ru.kamikadze_zm.zmedia.util.MagnetsUtil;
 
 @Service
 public class DCServiceImpl implements DCService {
@@ -32,8 +35,6 @@ public class DCServiceImpl implements DCService {
     private String magnetsFileEncoding;
     @Value("${dc.max-magnets}")
     private int maxMagnets;
-    @Value("${dc.magnet-pattern}")
-    private String magnetPattern;
 
     @Value("${host}")
     private String host;
@@ -44,6 +45,9 @@ public class DCServiceImpl implements DCService {
     @Value("${game-part}")
     private String gamePart;
 
+    @Autowired
+    private MagnetsUtil magnetsUtil;
+
     @Async
     @Override
     public void updateMagnets(Publication<?, ?, DownloadLink> p) {
@@ -53,7 +57,7 @@ public class DCServiceImpl implements DCService {
         }
         Charset charset = Charset.forName(magnetsFileEncoding);
         List<String> message = new ArrayList<>();
-        List<String> magnets = new ArrayList<>(maxMagnets + 1);
+        LinkedHashMap<String, String> magnets = new LinkedHashMap<>((int) (maxMagnets * 1.5));
 
         try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file), charset))) {
             String line;
@@ -61,8 +65,9 @@ public class DCServiceImpl implements DCService {
                 if (line.isEmpty()) {
                     continue;
                 }
-                if (line.startsWith(magnetPattern)) {
-                    magnets.add(line);
+                String hash = magnetsUtil.getHash(line);
+                if (hash != null) {
+                    magnets.put(hash, line);
                 } else {
                     message.add(line);
                 }
@@ -85,11 +90,13 @@ public class DCServiceImpl implements DCService {
                 break;
         }
         String url = host + part + p.getId();
-        String line = p.getDownloadLinks().get(0).getLink() + "    " + url;
+        String magnet = p.getDownloadLinks().get(0).getLink();
+        String line = magnet + "    " + url;
 
-        magnets.add(line);
-        if (magnets.size() > maxMagnets) {
-            magnets = magnets.subList(magnets.size() - maxMagnets, magnets.size());
+        magnets.put(magnetsUtil.getHash(magnet), line);
+        List<String> magnetsList = new ArrayList<>(magnets.values());
+        if (magnetsList.size() > maxMagnets) {
+            magnetsList = magnetsList.subList(magnetsList.size() - maxMagnets, magnetsList.size());
         }
 
         try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), charset))) {
@@ -98,8 +105,8 @@ public class DCServiceImpl implements DCService {
                 bw.newLine();
             }
             bw.newLine();
-            for (String magnet : magnets) {
-                bw.write(magnet);
+            for (String m : magnetsList) {
+                bw.write(m);
                 bw.newLine();
             }
         } catch (IOException e) {
