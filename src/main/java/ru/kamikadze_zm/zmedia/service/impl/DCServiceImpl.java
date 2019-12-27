@@ -40,7 +40,7 @@ public class DCServiceImpl implements DCService {
     private String host;
     @Value("${film-part}")
     private String filmPart;
-    @Value("${tv_series}")
+    @Value("${tv_series-part}")
     private String tvSeriesPart;
     @Value("${game-part}")
     private String gamePart;
